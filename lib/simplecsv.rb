@@ -1,8 +1,5 @@
 =begin
-SimplePlot
-
-  GnuPlot interface to simpleoutput
-
+SimpleCSV
    Copyright 2014 Austen Higgins-Cassidy
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,16 +14,7 @@ SimplePlot
    See the License for the specific language governing permissions and
    limitations under the License.
 =end
-class SimplePlot
-  require 'gnuplot'
 
-  Gnuplot.open do |gp|
-    Gnuplot::Plot.new(gp) do |plot|
-      plot.terminal "png"
-      plot.output File.expand_path("#{output_path}.png", __FILE__)
-    end
-  end
+class SimpleCSV < SimpleOutput::SimpleOutputPlugin
+
 end
-
-
-      

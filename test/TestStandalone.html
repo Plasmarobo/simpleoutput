@@ -1,0 +1,26 @@
+<html>
+<title>
+Data test
+</title>
+<script src='http://www.google.com/jsapi'></script>
+
+                <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
+                <script src='../../chartkick.js/chartkick.js'></script>
+<body>
+<div>Hello world</div>
+<p>Barchart</p>
+<div id='chart-1' style='height:400px;'></div>
+<div><i>Piechart</i></div>
+<div id='chart-2' style='height:400px;'></div>
+<p>Linechart</p>
+<div id='chart-3' style='height:400px;'></div>
+<div><h2>Areachart</h2></div>
+<div id='chart-4' style='height:400px;'></div>
+<p>Columnchart</p>
+<div id='chart-5' style='height:400px;'></div>
+<script>$(function (){new Chartkick.BarChart('chart-1',[["My: 0",0],["My: 1",1],["My: 2",2],["My: 3",3],["My: 4",4],["My: 5",5],["My: 6",6],["My: 7",7],["My: 8",8],["My: 9",9]], {'format':'string'});
+new Chartkick.PieChart('chart-2',[["My: 0",0],["My: 1",1],["My: 2",2],["My: 3",3],["My: 4",4],["My: 5",5],["My: 6",6],["My: 7",7],["My: 8",8],["My: 9",9]], {'format':'string'});
+new Chartkick.LineChart('chart-3',[["My: 0",0],["My: 1",1],["My: 2",2],["My: 3",3],["My: 4",4],["My: 5",5],["My: 6",6],["My: 7",7],["My: 8",8],["My: 9",9]], {'format':'string'});
+new Chartkick.AreaChart('chart-4',[["My: 0",0],["My: 1",1],["My: 2",2],["My: 3",3],["My: 4",4],["My: 5",5],["My: 6",6],["My: 7",7],["My: 8",8],["My: 9",9]], {'format':'string'});
+new Chartkick.ColumnChart('chart-5',[["My: 0",0],["My: 1",1],["My: 2",2],["My: 3",3],["My: 4",4],["My: 5",5],["My: 6",6],["My: 7",7],["My: 8",8],["My: 9",9]], {'format':'string'});
+});</script></body></html>

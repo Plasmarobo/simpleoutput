@@ -16,39 +16,87 @@ Copyright 2014 Austen Higgins-Cassidy
    limitations under the License.
 =end
 
-module SimpleOutput
-
-class SimpleHTML
+class SimpleHTML < SimpleOutput::SimpleOutputPlugin
 
   require 'json'
   require 'gnuplot'
 
-  def initialize(filename="results.html", title="HTML Results Page", charts=true)
+  def initialize(filename="results.html", title="HTML Results Page", javascript_path="../include")
     @filename = filename
     @html = "<html>\n<title>\n#{title}\n</title>\n"
+    @chart_block = []
+    @chart_names = {}
     @chart_id = 0
     @js_block = ""
-    if charts
-      @html += "<script src='http://www.google.com/jsapi'></script>\n
+    chartkick_path = javascript_path + ((javascript_path[-1] == "/") ? "chartkick.js" : "/chartkick.js"); 
+    @html += "<script src='http://www.google.com/jsapi'></script>\n
                 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
-                <script src='chartkick.js'></script>\n"
+                <script src='#{chartkick_path}'></script>\n<body>\n"
+  end
+
+  def addDataSet(name=nil, data=[], options={})
+    if name != nil
+      self.div "<h1>#{name}</h1>"
     end
-    @html += "<body>\n"
+    if options.has_key?("chart_type")
+      chart_div(options["chart_type"], data, name)
+    else
+      linechart(data)
+    end
   end
 
-  def writediv(content)
-    @html += "<div>#{content}</div>\n"
+  def annotate(annotation, name=nil)
+    self.p(annotation, name)
   end
 
-  def writep(content)
-    @html += "<p>#{content}</p>\n"
+  def write_html(content, index)
+    if(index != nil)
+      if @chart_block[index] == nil
+        @chart_block[index] = content
+      else
+        @chart_block[index] += content
+      end
+    else
+      @html += content
+    end
   end
 
-  def chart_div(type, data)
-    
-    @html += "<div id='chart-#{@chart_id}' style='height:400px;'></div>\n"
-    @js_block += "new Chartkick.#{type}('chart-#{@chart_id}'," + data.to_json + ");\n"
+  def div(content, name = nil)
+     if name == nil
+      index = @chart_id
+    else
+      index = @chart_names[name]
+    end
+    self.write_html("<div>#{content}</div>\n", index)
+  end
+
+  def p(content, name = nil)
+     if name == nil
+      index = @chart_id
+    else
+      index = @chart_names[name]
+    end
+    self.write_html("<p>#{content}</p>\n", index)
+  end
+
+  def chart_div(type, data, name=nil)
+    if data.class == Array
+      if(data[0].class != Array)
+        data.each_with_index {|point,i| data[i] = [i,point]}
+      end
+      if(data[0].size > 2)
+        data.each_with_index {|point,i| data[i] = [point[0], point[1]]}
+      elsif(data[0].size < 2)
+        data.each_with_index {|point,i| data[i] = [i,point]}
+      end
+    end
     @chart_id = @chart_id + 1
+    if name != nil
+      @chart_names[name] = @chart_id
+    end
+    self.write_html("<div id='chart-#{@chart_id}' style='height:400px;'></div>\n", @chart_id);
+    @js_block += "new Chartkick.#{type}('chart-#{@chart_id}'," + data.to_json + ", {'format':'string'});\n"
+   
   end
 
   def linechart(data)
@@ -75,15 +123,12 @@ class SimpleHTML
     self.chart_div("AreaChart", data)
   end
 
-
-
   def save
+    @chart_block.each {|chart_html| @html += chart_html}
     @html += "<script>$(function (){#{@js_block}});</script></body></html>"
     File.open(@filename, "w") do |file|
       file.syswrite(@html)
     end
   end
-
-end
 
 end
