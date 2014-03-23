@@ -23,33 +23,212 @@ module SimpleOutput
    class SimpleOutputPlugin
 
       def initialize()
-         @data = {}
-         @width = 10
+         @x = {}
+         @y = {}
+         @series_names = {}
+         @data_id = 0
+         @annotations = {}
+         @current_name 
+         @series_id = 0
+      end
+      #Virtual Functions
+      def options_callback(options)
+      end 
 
+      def set_x_callback(data, name, options)
       end
 
-      def addDataSet(name="My Set", data=[])
-         @last_set = name
-         @data[name] = data
+      def set_y_callback(data, name, options)
+      end
+
+      def append_callback(x,y,name,options)
+      end
+
+      def new_series_callback
+      end
+
+      #CORE functions
+      def translate_name(name)
+         if name == nil
+            name = "series-#{@series_id}"
+         end
+         if !@x.has_key?(name) 
+            @x[name] = []
+         end
+         if !@y.has_key?(name)
+            @y[name] = []
+         end
+         return name
+      end
+
+      def advance_series(name)
+         @series_id  += 1
+         @current_name = name
+         self.new_series_callback(name)
+      end
+
+      def append_series_name(name=nil, options)
+         name = translate_name(name)
+         if options.has_key?('series')
+            @series_names[name] << options['series']
+         else
+            @series_name[name] << "data-#{@data_id}"
+            @data_id += 1
+         end
+      end
+
+      def setXData(data, name, options={}, )
+        @x[name] = [data]
+        self.set_x_callback(data, name, options)
+      end
+
+      def setYData(data, name, options={})
+         @y[name] = [data]
+         self.set_y_callback(data, name, options)
+      end
+
+      def newData( x=[], y=[],name=nil, options={})
+         name = translate_name(name)
+         self.advance_series(name)
+         self.setXData(name, x, options)
+         self.setYData(name, y, options)
+         self.append_series_name(name,options)
+         self.options_callback(options)
+      end
+
+      #Interface Functions ===================================
+      def appendXY( x=[], y=[],name=nil, options={})
+         name = translate_name(name)
+         @x[name] << x
+         @y[name] << y
+         self.append_series_name(name, options)
+         self.options_callback(options)
+         self.append_callback(x,y,name,options)
+      end
+
+      def setXY(x=[], y=[], name=nil, options={})
+         self.newData(x,y,name,options)
+      end
+
+      def appendPoints(points =[], name=nil, options={})
+         x = []
+         y = []
+         points.each do |point|
+            x << point[0]
+            y << point[1]
+         end
+         self.appendXY(x,y,name,options)
+      end
+
+      def setPoints(points = [], name=nil, options={})
+         self.advance_series
+         x = []
+         y = []
+         points.each do |point|
+            x << point[0]
+            y << point[1]
+         end
+         self.setXY(x,y,name, options)
+      end
+
+      def appendHash(hash = {}, name=nil, options={})
+         name = translate_name(name)
+         x = []
+         y = []
+         hash.each_with_index do |key, value, index|
+            if key.is_a? Numeric
+               x << key
+            else
+               x << index
+            end
+            if value.is_a? Numeric
+               y << value
+            else
+               y << 0
+            end
+         end
+         self.appendXY(x,y,name,options)
+      end
+
+      def setHash(hash ={}, name=nil, options={})
+         self.advance_series
+         x = []
+         y = []
+         hash.each_with_index do |key, value, index|
+            if key.is_a? Numeric
+               x << key
+            else
+               x << index
+            end
+            if value.is_a? Numeric
+               y << value
+            else
+               y << 0
+            end
+         end
+         self.setXY(x,y,name,options)
       end
 
       def annotate(annotation, name=nil, options = {})
-         if name == nil
-            name = @last_set
-         end
+         name = translate_name(name)
          @annotations[name] << annotation
+         self.options_callback(options)
       end
 
-      def save()
-         @data.each do |name, value|
-            puts name
-            annotation = ""
-            @annotations[name].each do |annotation|
-               annotation += annotation + "|"
+      #Internal Helpers
+      def getDataAsPoints
+         series_data = {}
+         @x.each do |key, x_series|
+            #For each series of data
+            y_series = @y[key]
+            series_data[key] = []
+
+            x_series.each_with_index do |x_line, index|
+               #For each line
+               series_data[key] << [] #Create an empty set
+               y_line = y_series[index]
+               x_line.each_with_index do |x_point, index|
+                  y_point = y_line[index]
+                  series_data[key].last << [x_point, y_point]
+               end
             end
-            puts annotation
-            puts "   " + value
          end
+         return series_data    
+      end
+
+      def getDataAsXY
+         series_data = {}
+         @x.each do |key, x_series|
+            y_series = @y[key]
+            series_data[key] = []
+            x_series.each_with_index do |x_line, index|
+               y_line = y_series[index]
+               series_data[key] << [x_line, y_line]
+            end
+         end
+         return series_data
+      end
+
+      def getSeriesHashes
+         data_hash = {}
+         @x.each do |key, x_series|
+            data_hash[key] = {}
+            y_series = @y[key]
+            x_series.each_with_index do |x_data, index|
+               y_data = y_series[index]
+               data_hash[key][series_names[key][index]] = {}
+               x_data.each_with_index do |x_point, index|
+                  y_point = y_data[index]
+                  data_hash[key][series_names[key][index]][x_point] = y_point
+               end
+            end
+         end
+         return data_hash
+      end
+
+      #Output
+      def save()
+        
       end
 
    end
@@ -65,16 +244,36 @@ module SimpleOutput
          @plugins << plugin
       end
 
-      def addDataSet(name=nil, data=[], options = {})
-         @data_id = @data_id + 1
-         if name == nil
-            name = "DataSet#{@data_id}"
-         end
-         @plugins.each {|plugin| plugin.addDataSet(name, data, options)}
+      #Accept either [[x,y],[x,y]]
+      #Hash [name] = y
+      # array [x,y ]
+      #Interface Functions
+      def appendXY( x=[], y=[],name=nil, options={})
+         @plugins.each {|plugin| plugin.appendXY(x,y,name, options)}
       end
 
-      def annotate(annotation, name=nil)
-         @plugins.each {|plugin| plugin.annotate(annotation, name)}
+      def setXY(x=[], y=[], name=nil, options={})
+         @plugins.each {|plugin| plugin.setXY(x,y,name, options)}
+      end
+
+      def appendPoints(points =[], name=nil, options={})
+         @plugins.each {|plugin| plugin.appendPoints(points,name, options)}
+      end
+
+      def setPoints(points = [], name=nil, options={})
+         @plugins.each {|plugin| plugin.setPoints(points,name, options)}
+      end
+
+      def appendHash(hash = {}, name=nil, options={})
+         @plugins.each {|plugin| plugin.appendHash(hash,name, options)}
+      end
+
+      def setHash(hash ={}, name=nil, options={})
+         @plugins.each {|plugin| plugin.setHash(hash,name, options)}
+      end
+
+      def annotate(annotation, name=nil, options={})
+         @plugins.each {|plugin| plugin.annotate(annotation, name, options)}
       end
 
       def save()
