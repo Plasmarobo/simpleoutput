@@ -44,7 +44,7 @@ module SimpleOutput
       def append_callback(x,y,name,options)
       end
 
-      def new_series_callback(name)
+      def new_data_callback(name)
       end
 
       #CORE functions
@@ -64,7 +64,7 @@ module SimpleOutput
       def advance_series(name=nil)
          @series_id  += 1
          @current_name = name == nil ? "series-#{@series_id}" : name
-         self.new_series_callback(name)
+         self.new_data_callback(name)
          if !@series_names.has_key?(@current_name)
             @series_names[@current_name] = []
          end

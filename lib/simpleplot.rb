@@ -46,7 +46,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     end
   end
 
-  def new_series_callback(name)
+  def new_data_callback(name)
     @metadata[name] = {'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => []}
   end
 
