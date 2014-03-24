@@ -38,10 +38,10 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
   end
 
   def check_title(name, options)
-    if options.has_key?('series_title')
-      @metadata[name]['series_titles'] << options['series_title']
+    if options.has_key?('series')
+      @metadata[name]['series_titles'] << options['series']
     else
-      @metadata[name]['series_titles'] << "#set-{@series_next}"
+      @metadata[name]['series_titles'] << "set-#{@series_next}"
       @series_next += 1
     end
   end
@@ -70,11 +70,15 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     xmax = x.max
     ymin = y.min
     ymax = y.max
+    if !@metadata.has_key?(name)
+      new_series_callback(name)
+    end
     @metadata[name]['xmin'] = xmin < @metadata[name]['xmin'] ? xmin : @metadata[name]['xmin']
     @metadata[name]['xmax'] = xmax > @metadata[name]['xmax'] ? xmax : @metadata[name]['xmax']
     @metadata[name]['ymin'] = ymin < @metadata[name]['ymin'] ? ymin : @metadata[name]['ymin']
     @metadata[name]['ymax'] = ymax > @metadata[name]['ymax'] ? ymax : @metadata[name]['ymax']
     check_title(name, options)
+    
   end
 
   def save()

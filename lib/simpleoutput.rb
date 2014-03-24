@@ -28,7 +28,7 @@ module SimpleOutput
          @series_names = {}
          @data_id = 0
          @annotations = {}
-         @current_name 
+         @current_name = ""
          @series_id = 0
       end
       #Virtual Functions
@@ -44,13 +44,13 @@ module SimpleOutput
       def append_callback(x,y,name,options)
       end
 
-      def new_series_callback
+      def new_series_callback(name)
       end
 
       #CORE functions
       def translate_name(name)
          if name == nil
-            name = "series-#{@series_id}"
+            name = @current_name
          end
          if !@x.has_key?(name) 
             @x[name] = []
@@ -61,37 +61,46 @@ module SimpleOutput
          return name
       end
 
-      def advance_series(name)
+      def advance_series(name=nil)
          @series_id  += 1
-         @current_name = name
+         @current_name = name == nil ? "series-#{@series_id}" : name
          self.new_series_callback(name)
+         if !@series_names.has_key?(@current_name)
+            @series_names[@current_name] = []
+         end
+         @annotations[@current_name] = []
+         @current_name
       end
 
-      def append_series_name(name=nil, options)
+      def append_series_name(name=nil, options={})
          name = translate_name(name)
+         if !@series_names.has_key?(name)
+            @series_names[name] = []
+         end
          if options.has_key?('series')
             @series_names[name] << options['series']
          else
-            @series_name[name] << "data-#{@data_id}"
+            @series_names[name] << "data-#{@data_id}"
             @data_id += 1
          end
       end
 
-      def setXData(data, name, options={}, )
-        @x[name] = [data]
+      def setXData(data, name, options={})
+        @x[name] = []
+        @x[name] << data
         self.set_x_callback(data, name, options)
       end
 
       def setYData(data, name, options={})
-         @y[name] = [data]
+         @y[name] = []
+         @y[name] << data
          self.set_y_callback(data, name, options)
       end
 
       def newData( x=[], y=[],name=nil, options={})
-         name = translate_name(name)
-         self.advance_series(name)
-         self.setXData(name, x, options)
-         self.setYData(name, y, options)
+         name = self.advance_series(name)
+         self.setXData(x, name, options)
+         self.setYData(y, name, options)
          self.append_series_name(name,options)
          self.options_callback(options)
       end
@@ -121,7 +130,6 @@ module SimpleOutput
       end
 
       def setPoints(points = [], name=nil, options={})
-         self.advance_series
          x = []
          y = []
          points.each do |point|
@@ -135,7 +143,7 @@ module SimpleOutput
          name = translate_name(name)
          x = []
          y = []
-         hash.each_with_index do |key, value, index|
+         hash.each_with_index do |(key, value), index|
             if key.is_a? Numeric
                x << key
             else
@@ -151,10 +159,9 @@ module SimpleOutput
       end
 
       def setHash(hash ={}, name=nil, options={})
-         self.advance_series
          x = []
          y = []
-         hash.each_with_index do |key, value, index|
+         hash.each_with_index do |(key, value), index|
             if key.is_a? Numeric
                x << key
             else
@@ -178,7 +185,7 @@ module SimpleOutput
       #Internal Helpers
       def getDataAsPoints
          series_data = {}
-         @x.each do |key, x_series|
+         @x.each_pair do |(key, x_series)|
             #For each series of data
             y_series = @y[key]
             series_data[key] = []
@@ -198,7 +205,7 @@ module SimpleOutput
 
       def getDataAsXY
          series_data = {}
-         @x.each do |key, x_series|
+         @x.each_pair do |(key, x_series)|
             y_series = @y[key]
             series_data[key] = []
             x_series.each_with_index do |x_line, index|
@@ -211,15 +218,19 @@ module SimpleOutput
 
       def getSeriesHashes
          data_hash = {}
-         @x.each do |key, x_series|
+        
+         @x.each_pair do |(key, x_series)|
+            
             data_hash[key] = {}
             y_series = @y[key]
             x_series.each_with_index do |x_data, index|
+               
                y_data = y_series[index]
-               data_hash[key][series_names[key][index]] = {}
+               series_key = @series_names[key][index]
+               data_hash[key][series_key] = {}
                x_data.each_with_index do |x_point, index|
                   y_point = y_data[index]
-                  data_hash[key][series_names[key][index]][x_point] = y_point
+                  data_hash[key][series_key][x_point] = y_point
                end
             end
          end
@@ -252,6 +263,14 @@ module SimpleOutput
          @plugins.each {|plugin| plugin.appendXY(x,y,name, options)}
       end
 
+      def appendXYarray(data=[], name=nil, options={})
+         @plugins.each {|plugin| plugin.appendXY(data[0],data[1],name, options)}
+      end
+
+      def setXYarray(data = [], name=nil, options={})
+         @plugins.each {|plugin| plugin.setXY(data[0],data[1], name, options)}
+      end
+
       def setXY(x=[], y=[], name=nil, options={})
          @plugins.each {|plugin| plugin.setXY(x,y,name, options)}
       end
@@ -270,6 +289,20 @@ module SimpleOutput
 
       def setHash(hash ={}, name=nil, options={})
          @plugins.each {|plugin| plugin.setHash(hash,name, options)}
+      end
+
+      def setArray(data = [], name=nil, options={})
+         x = []
+         data.count.times {|i| x << i}
+         y = data
+         self.setXY(x,y,name,options)
+      end
+
+      def appendArray(data = [], name=nil, options={})
+          x = []
+         data.count.times {|i| x << i}
+         y = data
+         self.appendXY(x,y,name,options)
       end
 
       def annotate(annotation, name=nil, options={})

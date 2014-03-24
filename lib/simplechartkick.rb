@@ -20,28 +20,30 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
 
   require 'json'
 
-  def initialize(filename="results.html", title="HTML Results Page", javascript_path="../include")
+  def initialize(filename="results.html", title="Html Results Page", javascript_path="../include")
     super()
     @filename = filename
-    @title = title
-    @javascript_path = javascript_path
+    @chart_type = {}
+    chartkick_path = javascript_path + ((javascript_path[-1] == "/") ? "chartkick.js" : "/chartkick.js"); 
+    @html = "<html>\n<title>\n#{title}\n</title>\n<script src='http://www.google.com/jsapi'></script>\n
+                <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
+                <script src='#{chartkick_path}'></script>\n<body>\n"
+    
   end
+
+  def options_callback(options)
+    if options.has_key?("chart_type")
+      @chart_type[@current_name] = options['chart_type']
+    end
+  end 
 
   #Rendering Functions functions
   def write_html(content, index)
-    if(index != nil)
-      if @chart_block[index] == nil
-        @chart_block[index] = content
-      else
-        @chart_block[index] += content
-      end
-    else
-      @html += content
-    end
+    @html += content
   end
 
   def div(content, name = nil)
-     if name == nil
+    if name == nil
       index = @chart_id
     else
       index = @chart_names[name]
@@ -92,21 +94,40 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
     self.chart_div("AreaChart", data)
   end
 
- 
-  def annotate(annotation, name=nil)
-    self.p(annotation, name)
-  end
+   def getMultiSeriesHashes
+      data_hash = {}
+      
+        @x.each_pair do |(key, x_series)|
+          data_hash[key] = []
+          y_series = @y[key]
+          x_series.each_with_index do |x_data, index|
+               
+             y_data = y_series[index]
+             series_key = @series_names[key][index]
+             data_hash[key] << {'name' => series_key}
+             data_hash[key].last['data'] = {}
+             x_data.each_with_index do |x_point, index|
+                y_point = y_data[index]
+                data_hash[key].last['data'][x_point] = y_point
+             end
+          end
+       end
+       return data_hash
+    end
 
   def save
-    html = "<html>\n<title>\n#{@title}\n</title>\n"
-    chart_id = 0
-    js_block = ""
-    chartkick_path = @javascript_path + ((@javascript_path[-1] == "/") ? "chartkick.js" : "/chartkick.js"); 
-    html += "<script src='http://www.google.com/jsapi'></script>\n
-                <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
-                <script src='#{chartkick_path}'></script>\n<body>\n"
-    self.getSeriesHashes.each do |chart_name, chart_series|
-      self.chart_div(chart_name, chart_series)
+    @chart_id = 0
+    @js_block = ""
+    
+    self.getMultiSeriesHashes.each_pair do |(chart_name, chart_series)|
+      type = @chart_type.has_key?(chart_name) ? @chart_type[chart_name] : "LineChart" 
+      if type == "PieChart"
+        chart_series = chart_series[0]['data']
+      end
+      self.chart_div(chart_series, type, chart_name)
+      if @annotations.has_key?(chart_name)
+        @annotations[chart_name].each {|content| self.p(content)}
+      end
     end
     @html += "<script>$(function (){#{@js_block}});</script></body></html>"
     File.open(@filename, "w") do |file|

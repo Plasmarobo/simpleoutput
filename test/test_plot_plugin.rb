@@ -1,10 +1,9 @@
 require './test_data.rb'
 require '../lib/simpleoutput.rb'
-require '../lib/simplechartkick.rb'
+require '../lib/simpleplot.rb'
 
 #Test standalone
-html = SimpleChartkick.new("test_chartkick_Standalone.html", "Data test", "../../chartkick.js/")
-html.div("Hello world")
+plot = SimplePlot.new("_standalone")
 points = []
 x = []
 y = []
@@ -15,21 +14,21 @@ hash = {}
   x << index
   y << index
 end
-html.setXY(x, y, "XY")
-html.appendXY( x, y,"XY", {"chart_type" => "ColumnChart"})
-html.setPoints(points, "POINTS", {"chart_type" => "PieChart"})
-html.setHash(hash, "Hash", {"chart_type" => "AreaChart"})
-html.appendPoints(points)
-html.appendHash( {0 => 1, 1 => 3, 3 => 7}, "XY")
-html.annotate("Should be Hash")
-html.annotate("Should be XY", "XY")
-html.save()
+plot.setXY(x, y, "XY", {"series" => "Zero"})
+plot.appendXY( x, y,"XY", {"series" => "One"})
+plot.setPoints(points, "POINTS")
+plot.setHash(hash, "Hash", {"xlabel" => 'fish'})
+plot.appendPoints(points)
+plot.appendHash( {0 => 1, 1 => 3, 3 => 7}, "XY", {'ylabel' => 'seals'})
+plot.annotate("Should be Hash")
+plot.annotate("Should be XY", "XY")
+plot.save()
 
 data = TestData.new
 #Test output Engine
 output_engine = SimpleOutput::SimpleOutputEngine.new
-html_plugin = SimpleChartkick.new("test_chartkick_Engine.html", "Output Engine", "../../chartkick.js")
-output_engine.addPlugin(html_plugin)
+plot_plugin = SimplePlot.new("_output")
+output_engine.addPlugin(plot_plugin)
 
 output_engine.setXYarray(data.xy_data, "XY")
 output_engine.appendXY( data.array_data, data.array_data)
