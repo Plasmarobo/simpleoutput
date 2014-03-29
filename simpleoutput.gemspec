@@ -8,6 +8,6 @@ Gem::Specification.new do |s|
   s.email = 'plasmarobo@gmail.com'
   s.files = ["lib/simpleoutput.rb", "lib/simplelog.rb", "lib/simpleplot.rb", "lib/simplechartkick.rb", "include/chartkick.js", "LICENSE"]
   s.homepage = 'https://github.com/Plasmarobo/simpleoutput'
-  s.add_runtime_dependency "gnuplot", [">= 2.6.2"]
-  s.add_runtime_dependency "json", [">= 1.7.7"]
+  s.add_runtime_dependency "gnuplot", ["~> 2.6"," >= 2.6.2"]
+  s.add_runtime_dependency "json", ["~> 1.7", ">= 1.7.7"]
 end
