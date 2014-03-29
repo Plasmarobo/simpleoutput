@@ -49,4 +49,24 @@ output_engine.appendHash(data.hash_data, "Magic", {'series' => 'third'})
 output_engine.setHash(data.hash_data, "mydata", {'series' => 'back'})
 output_engine.setArray(data.array_data, "Another")
 output_engine.appendArray(data.array_data, "Lester", {'series' => 'magnetc'})
+
+run = 1000
+gaussX = []
+gaussY = []
+run.times do 
+	x = Random.rand
+	y = Random.rand
+	gaussX << x
+	gaussY << y
+end
+output_engine.setXYarray([gaussX, gaussY], "Gauss")
+
+output_engine.setArray(gaussY.clone, "GaussY", {"histogram" => true, 'ymin' => 0, 'ymax' => 1})
+
+output_engine.setXY(gaussY, gaussX, "XY2", {"histogram" => true})
+output_engine.setArray(gaussY, "GaussY2")
+
+output_engine.setArray(gaussX, "GaussX", {"histogram" => true, 'ymin' => 0, 'ymax' => 1})
+
+
 output_engine.save()

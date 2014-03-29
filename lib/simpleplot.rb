@@ -68,6 +68,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
   end
 
   def new_data_callback(name)
+    name = translate_name(name)
     @metadata[name] = {'length' => 0, 'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => [], 'histogram' => false, 'bincount' => 10, 'normalized' => false}
   end
 
@@ -106,11 +107,12 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
 
   def save()
     data = self.getDataAsXY()
-    Gnuplot.open do |gp|
-      data.each do |set_name, series|
+    data.each do |set_name, series|
+      Gnuplot.open do |gp|
         Gnuplot::Plot.new(gp) do |plot|
           plot.terminal "png"
           #plot.size 0.95
+         
           plot.output "#{set_name+@name}.png"
 
           plot.title set_name
@@ -118,12 +120,14 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
           plot.xlabel @metadata[set_name]['xlabel']
           plot.ylabel @metadata[set_name]['ylabel']
           plot.data = []
+         
           if @metadata[set_name]['histogram']
             size = @metadata[set_name]['length']
             bins = @metadata[set_name]['bincount']
             max = @metadata[set_name]['ymax']
             min = @metadata[set_name]['ymin']
-            width = (max-min).to_f/bins.to_f
+           
+            width = (max.to_f-min.to_f).to_f/bins.to_f
             #bins = size.to_f/width.to_f
             plot.yrange '[0:]'
             plot.xrange "[#{min}:#{max}]"
@@ -137,19 +141,22 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
             plot.yrange "[#{@metadata[set_name]['ymin']}:#{@metadata[set_name]['ymax']}]"
           end
           series.each_with_index do |line, index|
+            
             if @metadata[set_name]['histogram']
-              line = line[1]
+              data_pts = line[1]
+            else
+              data_pts = line
             end
-            d = Gnuplot::DataSet.new(line) 
+             
+            d = Gnuplot::DataSet.new(data_pts) 
             d.title = @metadata[set_name]['series_titles'][index]
            
             if @metadata[set_name]['histogram']
-              d.using = "(#{width}*floor($1/#{width})+#{width}/2.0):(1.0) smooth freq w boxes lc rgb\"blue\""
+              d.using = "(#{width.to_f}*floor($1/#{width.to_f})+#{width.to_f}/2.0):(1.0) smooth freq w boxes lc rgb\"blue\""
             else
                d.with = "linespoints"
                d.linewidth = 2
             end
-            
             plot.data << d
             
           end

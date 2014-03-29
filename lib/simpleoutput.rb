@@ -264,35 +264,35 @@ module SimpleOutput
       # array [x,y ]
       #Interface Functions
       def appendXY( x=[], y=[],name=nil, options={})
-         @plugins.each {|plugin| plugin.appendXY(x,y,name, options)}
+         @plugins.each {|plugin| plugin.appendXY(x.clone,y.clone,name, options)}
       end
 
       def appendXYarray(data=[], name=nil, options={})
-         @plugins.each {|plugin| plugin.appendXY(data[0],data[1],name, options)}
+         @plugins.each {|plugin| plugin.appendXY(data[0].clone,data[1].clone,name, options)}
       end
 
       def setXYarray(data = [], name=nil, options={})
-         @plugins.each {|plugin| plugin.setXY(data[0],data[1], name, options)}
+         @plugins.each {|plugin| plugin.setXY(data[0].clone,data[1].clone, name, options)}
       end
 
       def setXY(x=[], y=[], name=nil, options={})
-         @plugins.each {|plugin| plugin.setXY(x,y,name, options)}
+         @plugins.each {|plugin| plugin.setXY(x.clone,y.clone,name, options)}
       end
 
       def appendPoints(points =[], name=nil, options={})
-         @plugins.each {|plugin| plugin.appendPoints(points,name, options)}
+         @plugins.each {|plugin| plugin.appendPoints(points.clone,name, options)}
       end
 
       def setPoints(points = [], name=nil, options={})
-         @plugins.each {|plugin| plugin.setPoints(points,name, options)}
+         @plugins.each {|plugin| plugin.setPoints(points.clone,name, options)}
       end
 
       def appendHash(hash = {}, name=nil, options={})
-         @plugins.each {|plugin| plugin.appendHash(hash,name, options)}
+         @plugins.each {|plugin| plugin.appendHash(hash.clone,name, options)}
       end
 
       def setHash(hash ={}, name=nil, options={})
-         @plugins.each {|plugin| plugin.setHash(hash,name, options)}
+         @plugins.each {|plugin| plugin.setHash(hash.clone,name, options)}
       end
 
       def setArray(data = [], name=nil, options={})
@@ -305,12 +305,12 @@ module SimpleOutput
       def appendArray(data = [], name=nil, options={})
           x = []
          data.count.times {|i| x << i}
-         y = data
+         y = data.clone
          self.appendXY(x,y,name,options)
       end
 
       def annotate(annotation, name=nil, options={})
-         @plugins.each {|plugin| plugin.annotate(annotation, name, options)}
+         @plugins.each {|plugin| plugin.annotate(annotation.clone, name, options)}
       end
 
       def save()
