@@ -1,10 +1,11 @@
 require './test_data.rb'
 require '../lib/simpleoutput.rb'
-require '../lib/simplechartkick.rb'
+require '../lib/simplelog.rb'
 
 #Test standalone
-html = SimpleChartkick.new("test_chartkick_Standalone.html", "Data test", "../../chartkick.js/")
-html.div("Hello world")
+log = SimpleLog.new("testlog")
+puts log.getTimestamp()
+
 points = []
 x = []
 y = []
@@ -15,29 +16,30 @@ hash = {}
   x << index
   y << index
 end
-html.setXY(x, y, "XY")
-html.appendXY( x, y,"XY", {"chart_type" => "ColumnChart"})
-html.setPoints(points, "POINTS", {"chart_type" => "PieChart"})
-html.setHash(hash, "Hash", {"chart_type" => "AreaChart"})
-html.appendPoints(points)
-html.appendHash( {0 => 1, 1 => 3, 3 => 7}, "XY")
-html.annotate("Should be Hash")
-html.annotate("Should be XY", "XY")
-html.save()
 
-html = SimpleChartkick.new("histogram.html", "histogram_test", "../../chartkick.js")
+log.setXY(x, y, "XY")
+log.appendXY( x, y,"XY", {"chart_type" => "ColumnChart"})
+log.setPoints(points, "POINTS", {"chart_type" => "PieChart"})
+log.setHash(hash, "Hash", {"chart_type" => "AreaChart"})
+log.appendPoints(points)
+log.appendHash( {0 => 1, 1 => 3, 3 => 7}, "XY")
+log.annotate("Should be Hash")
+log.annotate("Should be XY", "XY")
+log.save()
+
+log = SimpleLog.new("histtest")
 points = []
 100.times do |index|
 	points << [index, Random.rand]
 end
-html.setPoints(points, "Stats", {'histogram'=>true, 'ymin'=>0, 'ymax' => 1})
-html.save()
+log.setPoints(points, "Stats", {'histogram'=>true, 'ymin'=>0, 'ymax' => 1})
+log.save()
 
 data = TestData.new
 #Test output Engine
 output_engine = SimpleOutput::SimpleOutputEngine.new
-html_plugin = SimpleChartkick.new("test_chartkick_Engine.html", "Output Engine", "../../chartkick.js")
-output_engine.addPlugin(html_plugin)
+log_plugin = SimpleLog.new("outputtest")
+output_engine.addPlugin(log_plugin)
 
 output_engine.setXYarray(data.xy_data, "XY")
 output_engine.appendXY( data.array_data, data.array_data)

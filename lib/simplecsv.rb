@@ -17,4 +17,12 @@ SimpleCSV
 
 class SimpleCSV < SimpleOutput::SimpleOutputPlugin
 
+   def initialize(filename)
+      super
+      
+   end
+
+   def save()
+   end
+
 end

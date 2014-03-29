@@ -182,6 +182,10 @@ module SimpleOutput
          self.options_callback(options)
       end
 
+      def setOptions(name=nil, options = {})
+         self.options_callback(options)
+      end
+
       #Internal Helpers
       def getDataAsPoints
          series_data = {}

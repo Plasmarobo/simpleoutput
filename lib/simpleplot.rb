@@ -35,6 +35,27 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     if options.has_key?('ylabel')
       @metadata[@current_name]['ylabel'] = options['ylabel']
     end
+    if options.has_key?('histogram')
+      @metadata[@current_name]['histogram'] = options['histogram']
+    end
+    if options.has_key?('xmin')
+      @metadata[@current_name]['xmin'] = options['xmin']
+    end
+    if options.has_key?('xmax')
+      @metadata[@current_name]['xmax'] = options['xmax']
+    end
+    if options.has_key?('ymin')
+      @metadata[@current_name]['ymin'] = options['ymin']
+    end
+    if options.has_key?('ymax')
+      @metadata[@current_name]['ymax'] = options['ymax']
+    end
+    if options.has_key?('bincount')
+      @metadata[@current_name]['bincount'] = options['binscount']
+    end
+    if options.has_key?('normalized')
+      @metadata[@current_name]['normalized'] = options['normalized']
+    end
   end
 
   def check_title(name, options)
@@ -47,7 +68,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
   end
 
   def new_data_callback(name)
-    @metadata[name] = {'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => []}
+    @metadata[name] = {'length' => 0, 'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => [], 'histogram' => false, 'bincount' => 10, 'normalized' => false}
   end
 
   def set_x_callback(data, name, options)
@@ -55,6 +76,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     xmax = data.max
     @metadata[name]['xmin'] = xmin
     @metadata[name]['xmax'] = xmax
+    @metadata[name]['length'] = (@metadata[name]['length'] < data.size) ? data.size : @metadata[name]['length']
     check_title(name, options)
   end
 
@@ -71,8 +93,9 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     ymin = y.min
     ymax = y.max
     if !@metadata.has_key?(name)
-      new_series_callback(name)
+      new_data_callback(name)
     end
+    @metadata[name]['length'] = @metadata[name]['length'] < x.size ? x.size : @metadata[name]['length']
     @metadata[name]['xmin'] = xmin < @metadata[name]['xmin'] ? xmin : @metadata[name]['xmin']
     @metadata[name]['xmax'] = xmax > @metadata[name]['xmax'] ? xmax : @metadata[name]['xmax']
     @metadata[name]['ymin'] = ymin < @metadata[name]['ymin'] ? ymin : @metadata[name]['ymin']
@@ -94,14 +117,39 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
 
           plot.xlabel @metadata[set_name]['xlabel']
           plot.ylabel @metadata[set_name]['ylabel']
-          plot.xrange "[#{@metadata[set_name]['xmin']}:#{@metadata[set_name]['xmax']}]"
-          plot.yrange "[#{@metadata[set_name]['ymin']}:#{@metadata[set_name]['ymax']}]"
           plot.data = []
+          if @metadata[set_name]['histogram']
+            size = @metadata[set_name]['length']
+            bins = @metadata[set_name]['bincount']
+            max = @metadata[set_name]['ymax']
+            min = @metadata[set_name]['ymin']
+            width = (max-min).to_f/bins.to_f
+            #bins = size.to_f/width.to_f
+            plot.yrange '[0:]'
+            plot.xrange "[#{min}:#{max}]"
+            plot.set('boxwidth',width*0.9)
+            plot.set('offset', 'graph 0.05,0.05,0.05,0.0')
+            plot.set('xtics' " #{min}, #{width.to_f}, #{max}")
+            plot.set('tics', 'out nomirror')
+            plot.set('style', 'fill solid 0.5')
+          else
+            plot.xrange "[#{@metadata[set_name]['xmin']}:#{@metadata[set_name]['xmax']}]"
+            plot.yrange "[#{@metadata[set_name]['ymin']}:#{@metadata[set_name]['ymax']}]"
+          end
           series.each_with_index do |line, index|
+            if @metadata[set_name]['histogram']
+              line = line[1]
+            end
             d = Gnuplot::DataSet.new(line) 
             d.title = @metadata[set_name]['series_titles'][index]
-            d.with = "linespoints"
-            d.linewidth = 2
+           
+            if @metadata[set_name]['histogram']
+              d.using = "(#{width}*floor($1/#{width})+#{width}/2.0):(1.0) smooth freq w boxes lc rgb\"blue\""
+            else
+               d.with = "linespoints"
+               d.linewidth = 2
+            end
+            
             plot.data << d
             
           end

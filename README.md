@@ -41,7 +41,7 @@ setHash(hash ={x1=>y1, x2=>y2}, name=nil, options={})
 The optional options parameter accepts the `{'series' => 'name'}` option for most plugins. Additionally metadata can be added to a trend or chart by using the `annotate(annotation, name=nil, options = {})` function. This is defined per-plugin and may have very different behavor, or my simply be ignored. 
 
 ## Default Plugins
-### Chartkick
+### SimpleChartkick (output filename, title, path to chartkick.js)
 A simple built in html/chartting plugin. Accepts `'chart_type'` as an options with the following values:
 ```ruby
 "PieChart" #Does NOT support series
@@ -49,18 +49,32 @@ A simple built in html/chartting plugin. Accepts `'chart_type'` as an options wi
 "AreaChart"
 "ColumnChart"
 "BarChart"
+'histogram' => true/false
+'bincount' => 10  #Automatically determines width
+'ymin' => 0 #Only for histograms, sets min-bin
+'ymax' => 0 #Only for histograms, set max-bin
 ```
 The annotate function inserts paragraphs below a chart.
 Chartkick depends on a MODIFIED version of chartkick.js that is included with the gem. 
 
-### Plot
+### SimplePlot (output suffix)
 An interface to Gnuplot (unix/cygwin only). Untested Windows support for Gnuplot. If there is a good port available, it's possible this could work. 
 Gnuplot accepts the following options:
 ```ruby
 'xlabel' => 'Text'
 'ylabel' => 'Text'
+'histogram' => true/false
+'bincount' => 10 #Sets the number of bins, auto-sized
+'ymin' => 0  #Note: sets the min bin for histograms
+'ymax' => 0  #Note: sets the max bin for histograms
+'xmax' => 0
+'xmin' => 0
 ```
 Max and Min values are automatically set by your data. 
+
+### SimpleLog (output suffix, output format [.txt])
+A simple txt logging tool. Provides timestamped events and name tracing. Will traverse and print arrays and hashes. Will attempt to print values using to_s if they are not a string or numeric. 
+Simplelog ignores options
 
 # Developing Plugins
 Plugins should inherit from the SimpleOutputPlugin class, which provides the following interface and callback functions:

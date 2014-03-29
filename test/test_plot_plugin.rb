@@ -24,6 +24,14 @@ plot.annotate("Should be Hash")
 plot.annotate("Should be XY", "XY")
 plot.save()
 
+plot = SimplePlot.new("_histogram")
+points = []
+100.times do |index|
+	points << [index, Random.rand]
+end
+plot.setPoints(points, "Stats", {'histogram'=>true, 'ymin'=>0, 'ymax' => 1})
+plot.save()
+
 data = TestData.new
 #Test output Engine
 output_engine = SimpleOutput::SimpleOutputEngine.new

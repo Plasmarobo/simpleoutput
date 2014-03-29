@@ -23,17 +23,34 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
   def initialize(filename="results.html", title="Html Results Page", javascript_path="../include")
     super()
     @filename = filename
-    @chart_type = {}
+    @metadata = {}
     chartkick_path = javascript_path + ((javascript_path[-1] == "/") ? "chartkick.js" : "/chartkick.js"); 
     @html = "<html>\n<title>\n#{title}\n</title>\n<script src='http://www.google.com/jsapi'></script>\n
                 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
                 <script src='#{chartkick_path}'></script>\n<body>\n"
     
   end
+  def new_data_callback(name)
+    @metadata[name] = {'chart_type' => 'LineChart', 'bincount' => 10}
+  end
 
   def options_callback(options)
     if options.has_key?("chart_type")
-      @chart_type[@current_name] = options['chart_type']
+      @metadata[@current_name]['chart_type'] = options['chart_type']
+    end
+    if options.has_key?('histogram')
+      if options['histogram']
+        @metadata[@current_name]['chart_type'] = 'Histogram'
+      end
+    end
+    if options.has_key?('bincount')
+      @metadata[@current_name]['bincount'] = options['bincount']
+    end
+    if options.has_key?('ymin')
+      @metadata[@current_name]['ymin'] = options['ymin']
+    end
+    if options.has_key?('ymax')
+      @metadata[@current_name]['ymax'] = options['ymax']
     end
   end 
 
@@ -120,9 +137,43 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
     @js_block = ""
     
     self.getMultiSeriesHashes.each_pair do |(chart_name, chart_series)|
-      type = @chart_type.has_key?(chart_name) ? @chart_type[chart_name] : "LineChart" 
+      if !@metadata.has_key?(chart_name)
+        @metadata[chart_name] = {'chart_type' => 'LineChart', 'bincount' => 10}
+      end
+      type = @metadata[chart_name].has_key?('chart_type') ? @metadata[chart_name]['chart_type'] : 'LineChart' 
       if type == "PieChart"
         chart_series = chart_series[0]['data']
+      elsif type == "Histogram"
+        type = 'ColumnChart'
+        bins =  @metadata[chart_name]['bincount']
+        #Reorder data
+        chart_series.each do |series|
+          name = series['name']
+          series_data = series['data']
+          
+          hist_data = {}
+          ypoints = []
+          
+          series_data.each_pair do |(x, y)|
+            ypoints << y
+          end
+          min = @metadata[chart_name].has_key?('ymin') ? @metadata[chart_name]['ymin'] : ypoints.min
+          max = @metadata[chart_name].has_key?('ymax') ? @metadata[chart_name]['ymax'] : ypoints.max
+          width = (max.to_f-min.to_f)/bins.to_f
+          bins.times do |i| 
+            index = (width*i).round(2)
+            hist_data[index] = 0
+            ypoints.delete_if do |value|
+              if value >= width*i && value < width*(i+1)
+                hist_data[index] += 1
+                true
+              else
+                false
+              end
+            end
+          end
+          series['data'] = hist_data 
+        end
       end
       self.chart_div(chart_series, type, chart_name)
       if @annotations.has_key?(chart_name)
