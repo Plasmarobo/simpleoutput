@@ -29,6 +29,12 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
   end
 
   def options_callback(options)
+    if options.has_key?('xsize')
+      @metadata[@current_name]['xsize'] = options['xsize']
+    end
+    if options.has_key?('ysize')
+      @metadata[@current_name]['ysize'] = options['ysize']
+    end
     if options.has_key?('xlabel')
       @metadata[@current_name]['xlabel'] = options['xlabel']
     end
@@ -69,7 +75,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
 
   def new_data_callback(name)
     name = translate_name(name)
-    @metadata[name] = {'length' => 0, 'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => [], 'histogram' => false, 'bincount' => 10, 'normalized' => false}
+    @metadata[name] = {'length' => 0, 'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => [], 'histogram' => false, 'bincount' => 10, 'normalized' => false, 'xsize' => 512, 'ysize' => 512}
   end
 
   def set_x_callback(data, name, options)
@@ -111,9 +117,10 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
       Gnuplot.open do |gp|
         Gnuplot::Plot.new(gp) do |plot|
           plot.terminal "png"
-          #plot.size 0.95
+          plot.size "{#{@metadata[@current_name]['xsize']},#{@metadata[@current_name]['ysize']}}"
          
           plot.output "#{set_name+@name}.png"
+          plot.set('size', '{1,1}')
 
           plot.title set_name
 
