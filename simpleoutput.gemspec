@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'SimpleOutput'
-  s.version = '1.0.5'
+  s.version = '1.0.6'
   s.licenses = ['Apache 2.0']
   s.summary = 'A Simple Engine to output data'
   s.description = 'A pluging based graphing and report rendering system with multiple simultanous output systems supported'

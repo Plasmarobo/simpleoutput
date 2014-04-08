@@ -51,7 +51,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
       @metadata[@current_name]['ymax'] = options['ymax']
     end
     if options.has_key?('bincount')
-      @metadata[@current_name]['bincount'] = options['binscount']
+      @metadata[@current_name]['bincount'] = options['bincount']
     end
     if options.has_key?('normalized')
       @metadata[@current_name]['normalized'] = options['normalized']
