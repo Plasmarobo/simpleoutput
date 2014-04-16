@@ -53,11 +53,13 @@ output_engine.appendArray(data.array_data, "Lester", {'series' => 'magnetc'})
 run = 1000
 gaussX = []
 gaussY = []
+zeros = []
 run.times do 
 	x = Random.rand
 	y = Random.rand
 	gaussX << x
 	gaussY << y
+	zeros << 0
 end
 output_engine.setXYarray([gaussX, gaussY], "Gauss")
 
@@ -66,7 +68,7 @@ output_engine.setArray(gaussY.clone, "GaussY", {"histogram" => true, 'ymin' => 0
 output_engine.setXY(gaussY, gaussX, "XY2", {"histogram" => true})
 output_engine.setArray(gaussY, "GaussY2")
 
-output_engine.setArray(gaussX, "GaussX", {"histogram" => true, 'ymin' => 0, 'ymax' => 1})
-
-
+output_engine.setArray(gaussX, "GaussX", {"xsize" => 1000, "ysize" => 1000, "histogram" => true, 'ymin' => 0, 'ymax' => 1})
+output_engine.setArray(zeros.clone, "Zero Test", {"xsize" => 1000, "ysize" => 1000, "histogram" => true})
+output_engine.setArray(zeros.clone, "Zero Test2", {"xsize" => 1000, "ysize" => 1000})
 output_engine.save()

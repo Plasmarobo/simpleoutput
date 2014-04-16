@@ -126,13 +126,14 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
           plot.xlabel @metadata[set_name]['xlabel']
           plot.ylabel @metadata[set_name]['ylabel']
           plot.data = []
-         
+          max = @metadata[set_name]['ymax']
+          min = @metadata[set_name]['ymin']
+          if min == max
+            max = min + 1
+          end
           if @metadata[set_name]['histogram']
             size = @metadata[set_name]['length']
-            bins = @metadata[set_name]['bincount']
-            max = @metadata[set_name]['ymax']
-            min = @metadata[set_name]['ymin']
-           
+            bins = @metadata[set_name]['bincount'] 
             width = (max.to_f-min.to_f).to_f/bins.to_f
             #bins = size.to_f/width.to_f
             plot.yrange '[0:]'
@@ -144,7 +145,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
             plot.set('style', 'fill solid 0.5')
           else
             plot.xrange "[#{@metadata[set_name]['xmin']}:#{@metadata[set_name]['xmax']}]"
-            plot.yrange "[#{@metadata[set_name]['ymin']}:#{@metadata[set_name]['ymax']}]"
+            plot.yrange "[#{min}:#{max}]"
           end
           series.each_with_index do |line, index|
             
