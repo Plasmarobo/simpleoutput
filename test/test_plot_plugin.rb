@@ -14,7 +14,7 @@ hash = {}
   x << index
   y << index
 end
-plot.setXY(x, y, "XY", {"series" => "Zero"})
+plot.setXY(x, y, "XY", {"series" => "Zero", 'xsize' => 2024, 'ysize' => 700 })
 plot.appendXY( x, y,"XY", {"series" => "One"})
 plot.setPoints(points, "POINTS")
 plot.setHash(hash, "Hash", {"xlabel" => 'fish'})
@@ -38,7 +38,7 @@ output_engine = SimpleOutput::SimpleOutputEngine.new
 plot_plugin = SimplePlot.new("_output")
 output_engine.addPlugin(plot_plugin)
 
-output_engine.setXYarray(data.xy_data, "XY")
+output_engine.setXYarray(data.xy_data, "XY", {"xsize" => 1024, "ysize" => 768})
 output_engine.appendXY( data.array_data, data.array_data)
 output_engine.appendXYarray([data.array_data, data.array_data])
 

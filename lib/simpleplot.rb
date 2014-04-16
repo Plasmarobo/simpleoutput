@@ -75,7 +75,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
 
   def new_data_callback(name)
     name = translate_name(name)
-    @metadata[name] = {'length' => 0, 'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => [], 'histogram' => false, 'bincount' => 10, 'normalized' => false, 'xsize' => 512, 'ysize' => 512}
+    @metadata[name] = {'length' => 0, 'xlabel' => 'x', 'ylabel' => 'y', 'xmin' => 0 , 'xmax' => 10, 'ymin' => 0, 'ymax' => 10, 'series_titles' => [], 'histogram' => false, 'bincount' => 10, 'normalized' => false, 'xsize' => 640, 'ysize' => 480}
   end
 
   def set_x_callback(data, name, options)
@@ -116,11 +116,10 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     data.each do |set_name, series|
       Gnuplot.open do |gp|
         Gnuplot::Plot.new(gp) do |plot|
-          plot.terminal "png"
-          plot.size "{#{@metadata[@current_name]['xsize']},#{@metadata[@current_name]['ysize']}}"
+          plot.terminal "png size #{@metadata[set_name]['xsize']},#{@metadata[set_name]['ysize']}"
          
           plot.output "#{set_name+@name}.png"
-          plot.set('size', '{1,1}')
+          #plot.set('size', '{1,1}')
 
           plot.title set_name
 
