@@ -30,6 +30,7 @@ module SimpleOutput
          @annotations = {}
          @current_name = ""
          @series_id = 0
+         @metadata = {}
       end
       #Virtual Functions
       def options_callback(options)

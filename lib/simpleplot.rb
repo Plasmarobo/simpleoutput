@@ -25,7 +25,6 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
      @name = name_template
      @size = size
      @series_next = 0;
-     @metadata = {}
   end
 
   def options_callback(options)
