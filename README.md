@@ -53,6 +53,7 @@ A simple built in html/chartting plugin. Accepts `'chart_type'` as an options wi
 'bincount' => 10  #Automatically determines width
 'ymin' => 0 #Only for histograms, sets min-bin
 'ymax' => 0 #Only for histograms, set max-bin
+'series_name' => 'Text'
 ```
 The annotate function inserts paragraphs below a chart.
 Chartkick depends on a MODIFIED version of chartkick.js that is included with the gem. 
@@ -69,12 +70,22 @@ Gnuplot accepts the following options:
 'ymax' => 0  #Note: sets the max bin for histograms
 'xmax' => 0
 'xmin' => 0
+'series_name' => 'Text'
 ```
 Max and Min values are automatically set by your data. 
 
 ### SimpleLog (output suffix, output format [.txt])
 A simple txt logging tool. Provides timestamped events and name tracing. Will traverse and print arrays and hashes. Will attempt to print values using to_s if they are not a string or numeric. 
 Simplelog ignores options
+
+### SimpleCSV (output prefix)
+A simple tool to render data into csv. Uses Header-column convention, and renders x rows and y rows of data. More options to come in future. 
+SimpleCSV accepts the following options:
+```ruby
+'xlabel' => 'Text'
+'ylabel' => 'Text' #Used if series_name not present
+'series_name' => 'Text'
+```
 
 # Developing Plugins
 Plugins should inherit from the SimpleOutputPlugin class, which provides the following interface and callback functions:
