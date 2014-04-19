@@ -24,14 +24,36 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
     super()
     @filename = filename
     @metadata = {}
+    @series_next = 0
     chartkick_path = javascript_path + ((javascript_path[-1] == "/") ? "chartkick.js" : "/chartkick.js"); 
     @html = "<html>\n<title>\n#{title}\n</title>\n<script src='http://www.google.com/jsapi'></script>\n
                 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
                 <script src='#{chartkick_path}'></script>\n<body>\n"
     
   end
+
+  def check_title(name, options)
+    if options.has_key?('series')
+      @metadata[name]['series_titles'] << options['series']
+    else
+      @metadata[name]['series_titles'] << "set-#{@series_next}"
+      @series_next += 1
+    end
+  end
+
+
+  def set_x_callback(data, name, options)
+    xmin = data.min
+    xmax = data.max
+    @metadata[name]['xmin'] = xmin
+    @metadata[name]['xmax'] = xmax
+    @metadata[name]['length'] = (@metadata[name]['length'] < data.size) ? data.size : @metadata[name]['length']
+    check_title(name, options)
+  end
+
   def new_data_callback(name)
-    @metadata[name] = {'chart_type' => 'LineChart', 'bincount' => 10}
+    name = translate_name(name)
+    @metadata[name] = {'length' => 0, 'chart_type' => 'LineChart', 'bincount' => 10, 'series_titles' => []}
   end
 
   def options_callback(options)

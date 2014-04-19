@@ -98,16 +98,12 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
     xmax = x.max
     ymin = y.min
     ymax = y.max
-    if !@metadata.has_key?(name)
-      new_data_callback(name)
-    end
     @metadata[name]['length'] = @metadata[name]['length'] < x.size ? x.size : @metadata[name]['length']
     @metadata[name]['xmin'] = xmin < @metadata[name]['xmin'] ? xmin : @metadata[name]['xmin']
     @metadata[name]['xmax'] = xmax > @metadata[name]['xmax'] ? xmax : @metadata[name]['xmax']
     @metadata[name]['ymin'] = ymin < @metadata[name]['ymin'] ? ymin : @metadata[name]['ymin']
     @metadata[name]['ymax'] = ymax > @metadata[name]['ymax'] ? ymax : @metadata[name]['ymax']
-    check_title(name, options)
-    
+    check_title(name, options) 
   end
 
   def save()

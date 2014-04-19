@@ -28,7 +28,7 @@ module SimpleOutput
          @series_names = {}
          @data_id = 0
          @annotations = {}
-         @current_name = ""
+         @current_name = "NameError"
          @series_id = 0
          @metadata = {}
       end
@@ -52,12 +52,6 @@ module SimpleOutput
       def translate_name(name)
          if name == nil
             name = @current_name
-         end
-         if !@x.has_key?(name) 
-            @x[name] = []
-         end
-         if !@y.has_key?(name)
-            @y[name] = []
          end
          return name
       end
@@ -86,6 +80,10 @@ module SimpleOutput
          end
       end
 
+      def new_data_check(name=nil)
+         (!@x.has_key?(name)) || (!@y.has_key?(name)) 
+      end
+
       def setXData(data, name, options={})
         @x[name] = []
         @x[name] << data
@@ -109,11 +107,15 @@ module SimpleOutput
       #Interface Functions ===================================
       def appendXY( x=[], y=[],name=nil, options={})
          name = translate_name(name)
-         @x[name] << x
-         @y[name] << y
-         self.append_series_name(name, options)
-         self.options_callback(options)
-         self.append_callback(x,y,name,options)
+         if !self.new_data_check(name)
+            @x[name] << x
+            @y[name] << y
+            self.append_series_name(name, options)
+            self.options_callback(options)
+            self.append_callback(x,y,name,options)
+         else
+            self.newData(x,y,name,options)
+         end
       end
 
       def setXY(x=[], y=[], name=nil, options={})
