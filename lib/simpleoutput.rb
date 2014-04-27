@@ -1,6 +1,5 @@
 =begin
-
-SimpleOutput Module
+SimpleOutput
    Copyright 2014 Austen Higgins-Cassidy
 
    Licensed under the Apache License, Version 2.0 (the "License");

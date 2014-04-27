@@ -4,8 +4,6 @@ SimpleOutput
 A simple output/plotting library for Ruby
 Released with Apache 2.0 License
 
-
-
 ## SimpleOutput::SimpleOutputEngine
 The output engine provides an aggrigating interface for output plugins.
 It makes it easy to swap plugins in and out, and even run multiple plugins in concert. 
@@ -17,7 +15,8 @@ output_engine = SimpleOutput::SimpleOutputEngine.new
 chartkick_plugin = SimpleChartkick.new("MyFile.html", "Test_Title", "/path/to/chartkick.js")
 output_engine.addPlugin(chartkick_plugin)
 ```
-Now any operations performed via the output engine will be echoed to the Chartkick plugin. The output engine supports a few formats not included in the plugin template. These generally do a bit of pre-processing. To include some data for output, we must name the set of data. We can make a call like so:
+We register any plugins we want to use. A plugin represents an output format. The OutputEngine by itself merely provides an interface to one or more plugins. 
+Now any operations performed via the output engine will be echoed to the Chartkick plugin. The output engine does a bit of pre-processing. To include some data for output, we must name the set of data. We can make a call like so:
 
 ```ruby
 data = []
@@ -37,6 +36,8 @@ appendPoints(points =[[x1,x2,x3...],[y1,y2,y3...]], name=nil, options={})
 setPoints(points = [[x1,x2,x3...],[y1,y2,y3...]], name=nil, options={})
 appendHash(hash = {x1=>y1, x2=>y2}, name=nil, options={})
 setHash(hash ={x1=>y1, x2=>y2}, name=nil, options={})
+appendXYarray(data=[], name=nil, options={}) #Note: uses array index as X value
+setXYarray(data=[], name=nil, options={}) #Note: uses array index as X value
 ```
 
 The optional options parameter accepts the `{'series' => 'name'}` option for most plugins. Additionally metadata can be added to a trend or chart by using the `annotate(annotation, name=nil, options = {})` function. This is defined per-plugin and may have very different behavor, or my simply be ignored. 
@@ -63,6 +64,8 @@ Chartkick depends on a MODIFIED version of chartkick.js that is included with th
 An interface to Gnuplot (unix/cygwin only). Untested Windows support for Gnuplot. If there is a good port available, it's possible this could work. 
 Gnuplot accepts the following options:
 ```ruby
+'xsize' => pixel count
+'ysize' => pixel count
 'xlabel' => 'Text'
 'ylabel' => 'Text'
 'histogram' => true/false
