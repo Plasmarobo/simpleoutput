@@ -2,6 +2,7 @@ SimpleOutput
 ============
 
 A simple output/plotting library for Ruby
+Released with Apache 2.0 License
 
 
 

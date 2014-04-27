@@ -14,6 +14,7 @@ tmp
 .png
 .csv
 .html
+.txt
 
 # YARD artifacts
 .yardoc
