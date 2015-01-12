@@ -28,7 +28,6 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
     @html = "<html>\n<title>\n#{title}\n</title>\n<script src='http://www.google.com/jsapi'></script>\n
                 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
                 <script src='#{chartkick_path}'></script>\n<body>\n"
-    
   end
 
   def check_title(name, options)
@@ -132,32 +131,30 @@ class SimpleChartkick < SimpleOutput::SimpleOutputPlugin
     self.chart_div("AreaChart", data)
   end
 
-   def getMultiSeriesHashes
-      data_hash = {}
-      
-        @x.each_pair do |(key, x_series)|
-          data_hash[key] = []
-          y_series = @y[key]
-          x_series.each_with_index do |x_data, index|
-               
-             y_data = y_series[index]
-             series_key = @series_names[key][index]
-             data_hash[key] << {'name' => series_key}
-             data_hash[key].last['data'] = {}
-             x_data.each_with_index do |x_point, index|
-                y_point = y_data[index]
-                data_hash[key].last['data'][x_point] = y_point
-             end
-          end
-       end
-       return data_hash
+  def get_multiseries_hashes
+    data_hash = {}   
+    @x.each_pair do |(key, x_series)|
+      data_hash[key] = []
+      y_series = @y[key]
+      x_series.each_with_index do |x_data, index|           
+        y_data = y_series[index]
+        series_key = @series_names[key][index]
+        data_hash[key] << {'name' => series_key}
+        data_hash[key].last['data'] = {}
+        x_data.each_with_index do |x_point, index|
+          y_point = y_data[index]
+          data_hash[key].last['data'][x_point] = y_point
+        end
+      end
     end
+    return data_hash
+  end
 
   def save
     @chart_id = 0
     @js_block = ""
     
-    self.getMultiSeriesHashes.each_pair do |(chart_name, chart_series)|
+    self.get_multiseries_hashes.each_pair do |(chart_name, chart_series)|
       if !@metadata.has_key?(chart_name)
         @metadata[chart_name] = {'chart_type' => 'LineChart', 'bincount' => 10}
       end

@@ -18,7 +18,7 @@ require 'time'
 class SimpleLog < SimpleOutput::SimpleOutputPlugin
    #Only supports annotation
    def initialize(name = "log", format="txt")
-      filename = name + self.getTimestamp() + "." + format
+      filename = name + self.get_timestamp() + "." + format
       @file = File.new(filename, "w")
       @series_names = {}
       @data_id = 0
@@ -36,54 +36,54 @@ class SimpleLog < SimpleOutput::SimpleOutputPlugin
       end
 
 
-   def setXData(data, name, options={})
+   def set_x_Data(data, name, options={})
     
    end
 
-   def setYData(data, name, options={})
+   def set_y_data(data, name, options={})
      
    end
 
-   def newData( x=[], y=[],name=nil, options={})
+   def new_data( x=[], y=[],name=nil, options={})
      
    end
 
    #Interface Functions ===================================
-   def appendXY( x=[], y=[],name=nil, options={})
+   def append_xy( x=[], y=[],name=nil, options={})
       log_name(name)
       log_var(x, "Appending X Data")
       log_var(y, "Appending Y Data")
    end
 
-   def setXY(x=[], y=[], name=nil, options={})
+   def set_xy(x=[], y=[], name=nil, options={})
       log_name(name)
       log_var(x, "Setting X Data")
       log_var(y, "Setting Y Data")
    end
 
-   def appendPoints(points =[], name=nil, options={})
+   def append_points(points =[], name=nil, options={})
       log_name(name)
       log_var(points, "Appending (points)")
    end
 
-   def setPoints(points = [], name=nil, options={})
+   def set_points(points = [], name=nil, options={})
       log_name(name)
       log_var(points, "Setting (points)")
    end
 
-   def appendHash(hash = {}, name=nil, options={})
+   def append_hash(hash = {}, name=nil, options={})
       log_name(name)
       log_var(hash, "Appending (hash)")
    end
 
-   def setHash(hash ={}, name=nil, options={})
+   def set_hash(hash ={}, name=nil, options={})
       log_name(name)
       log_var(hash, "Setting (hash)")
    end
 
       
 
-   def setOptions(name=nil, options = {})
+   def set_options(name=nil, options = {})
       log_var(option, "Options")
    end
 
@@ -95,9 +95,9 @@ class SimpleLog < SimpleOutput::SimpleOutputPlugin
 
    def log(content, name = nil)
       if name != nil
-         logtext = self.getTimestamp() + " #{name}: #{content}"
+         logtext = self.get_timestamp() + " #{name}: #{content}"
       else
-         logtext = self.getTimestamp() + " #{content}"
+         logtext = self.get_timestamp() + " #{content}"
       end
       puts logtext
       @file.syswrite("#{logtext}\n") 
@@ -147,19 +147,19 @@ class SimpleLog < SimpleOutput::SimpleOutputPlugin
 
 
 
-   def getTimestamp()
+   def get_timestamp()
       Time.now.strftime("%Y-%m-%d-%H%M%S")
    end
 
-   def getDataAsPoints
+   def get_data_as_points
       [[0,0]]
    end
 
-   def getDataAsXY
+   def get_data_as_xy
       [[0],[0]]
    end
 
-   def getSeriesHashes
+   def get_series_hashes
       {0 => 0}
    end
 

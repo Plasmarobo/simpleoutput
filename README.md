@@ -6,14 +6,15 @@ Released with Apache 2.0 License
 
 ## SimpleOutput::SimpleOutputEngine
 The output engine provides an aggrigating interface for output plugins.
-It makes it easy to swap plugins in and out, and even run multiple plugins in concert. 
+With one data set and one interface you can produce a number of different reports, graphs, and data files.
+It makes it easy to swap plugins in and out, getting your raw data into more human formats.
 
 The Output Engine is instanced so:
 ```ruby
 output_engine = SimpleOutput::SimpleOutputEngine.new
 #Let's load the chartkick plugin as an exmple
 chartkick_plugin = SimpleChartkick.new("MyFile.html", "Test_Title", "/path/to/chartkick.js")
-output_engine.addPlugin(chartkick_plugin)
+output_engine.add_plugin(chartkick_plugin)
 ```
 We register any plugins we want to use. A plugin represents an output format. The OutputEngine by itself merely provides an interface to one or more plugins. 
 Now any operations performed via the output engine will be echoed to the Chartkick plugin. The output engine does a bit of pre-processing. To include some data for output, we must name the set of data. We can make a call like so:
@@ -21,23 +22,23 @@ Now any operations performed via the output engine will be echoed to the Chartki
 ```ruby
 data = []
 100.times {|x| data << [x, Random.rand]}
-output_engine.setPoints(data, "Random Data")
+output_engine.set_points(data, "Random Data")
 ```
 
-setPoints is one of several data formats. It takes an array of two arrays. The first array is a series of x values (should be scalar/numerical), and the second is a series of y values (again, scalar/numerical). Plugins may support additional formats, but they all must support x/y data. 
+set_points is one of several data formats. It takes an array of two arrays. The first array is a series of x values (should be scalar/numerical), and the second is a series of y values (again, scalar/numerical). Plugins may support additional formats, but they all must support x/y data. 
 
 The set* functions create a new chart or 'data object'. The append* functions add data to an existing chart. Most plugins accept the 'series' option to allow naming individual lines within a plot. 
 
 The Output Engine supports the following append and set commands
 ```ruby
-appendXY( x=[x1, x2, x3...], y=[y1, y2, y3...],name=nil, options={})
-setXY(x=[x1, x2, x3...], y=[y1, y2, y3...], name=nil, options={})
-appendPoints(points =[[x1,x2,x3...],[y1,y2,y3...]], name=nil, options={})
-setPoints(points = [[x1,x2,x3...],[y1,y2,y3...]], name=nil, options={})
-appendHash(hash = {x1=>y1, x2=>y2}, name=nil, options={})
-setHash(hash ={x1=>y1, x2=>y2}, name=nil, options={})
-appendXYarray(data=[], name=nil, options={}) #Note: uses array index as X value
-setXYarray(data=[], name=nil, options={}) #Note: uses array index as X value
+append_xy( x=[x1, x2, x3...], y=[y1, y2, y3...],name=nil, options={})
+set_xy(x=[x1, x2, x3...], y=[y1, y2, y3...], name=nil, options={})
+append_points(points =[[x1,x2,x3...],[y1,y2,y3...]], name=nil, options={})
+set_points(points = [[x1,x2,x3...],[y1,y2,y3...]], name=nil, options={})
+append_hash(hash = {x1=>y1, x2=>y2}, name=nil, options={})
+set_hash(hash ={x1=>y1, x2=>y2}, name=nil, options={})
+append_xy_array(data=[], name=nil, options={}) #Note: uses array index as X value
+set_xy_array(data=[], name=nil, options={}) #Note: uses array index as X value
 ```
 
 The optional options parameter accepts the `{'series' => 'name'}` option for most plugins. Additionally metadata can be added to a trend or chart by using the `annotate(annotation, name=nil, options = {})` function. This is defined per-plugin and may have very different behavor, or my simply be ignored. 
@@ -134,7 +135,7 @@ class SimpleOutputPlugin
       end
 
       #Interface Functions ===================================
-      def appendXY( x=[], y=[],name=nil, options={})
+      def append_xy( x=[], y=[],name=nil, options={})
          name = translate_name(name)
          @x[name] << x
          @y[name] << y
@@ -143,65 +144,39 @@ class SimpleOutputPlugin
          self.append_callback(x,y,name,options)
       end
 
-      def setXY(x=[], y=[], name=nil, options={})
-         self.newData(x,y,name,options)
+      def set_xy(x=[], y=[], name=nil, options={})
+         self.new_data(x,y,name,options)
       end
 
-      def appendPoints(points =[], name=nil, options={})
+      def append_points(points =[], name=nil, options={})
          x = []
          y = []
          points.each do |point|
             x << point[0]
             y << point[1]
          end
-         self.appendXY(x,y,name,options)
+         self.append_xy(x,y,name,options)
       end
 
-      def setPoints(points = [], name=nil, options={})
+      def set_points(points = [], name=nil, options={})
          x = []
          y = []
          points.each do |point|
             x << point[0]
             y << point[1]
          end
-         self.setXY(x,y,name, options)
+         self.set_xy(x,y,name, options)
       end
 
-      def appendHash(hash = {}, name=nil, options={})
+      def append_hash(hash = {}, name=nil, options={})
          name = translate_name(name)
-         x = []
-         y = []
-         hash.each_with_index do |(key, value), index|
-            if key.is_a? Numeric
-               x << key
-            else
-               x << index
-            end
-            if value.is_a? Numeric
-               y << value
-            else
-               y << 0
-            end
-         end
-         self.appendXY(x,y,name,options)
+         x, y = self.hash_to_xy(hash)
+         self.append_xy(x,y,name,options)
       end
 
-      def setHash(hash ={}, name=nil, options={})
-         x = []
-         y = []
-         hash.each_with_index do |(key, value), index|
-            if key.is_a? Numeric
-               x << key
-            else
-               x << index
-            end
-            if value.is_a? Numeric
-               y << value
-            else
-               y << 0
-            end
-         end
-         self.setXY(x,y,name,options)
+      def set_hash(hash ={}, name=nil, options={})
+         x, y = self.hash_to_xy(hash)
+         self.set_xy(x,y,name,options)
       end
 
       def annotate(annotation, name=nil, options = {})
@@ -211,7 +186,7 @@ class SimpleOutputPlugin
       end
 
       #Internal Helpers
-      def getDataAsPoints
+      def get_data_as_points
          series_data = {}
          @x.each_pair do |(key, x_series)|
             #For each series of data
@@ -231,7 +206,7 @@ class SimpleOutputPlugin
          return series_data    
       end
 
-      def getDataAsXY
+      def get_data_as_xy
          series_data = {}
          @x.each_pair do |(key, x_series)|
             y_series = @y[key]
@@ -244,7 +219,7 @@ class SimpleOutputPlugin
          return series_data
       end
 
-      def getSeriesHashes
+      def get_series_hashes
          data_hash = {}
         
          @x.each_pair do |(key, x_series)|
@@ -263,6 +238,25 @@ class SimpleOutputPlugin
             end
          end
          return data_hash
+      end
+
+      private
+      def hash_to_xy(hash)
+         x = []
+         y = []
+         hash.each_with_index do |(key, value), index|
+            if key.is_a? Numeric
+               x << key
+            else
+               x << index
+            end
+            if value.is_a? Numeric
+               y << value
+            else
+               y << 0
+            end
+         end
+         return x, y
       end
    end
    ```

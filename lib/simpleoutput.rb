@@ -14,9 +14,6 @@ SimpleOutput
    See the License for the specific language governing permissions and
    limitations under the License.
 =end
-  
-
-
 
 module SimpleOutput
    class SimpleOutputPlugin
@@ -83,28 +80,28 @@ module SimpleOutput
          (!@x.has_key?(name)) || (!@y.has_key?(name)) 
       end
 
-      def setXData(data, name, options={})
+      def set_x_data(data, name, options={})
         @x[name] = []
         @x[name] << data
         self.set_x_callback(data, name, options)
       end
 
-      def setYData(data, name, options={})
+      def set_y_data(data, name, options={})
          @y[name] = []
          @y[name] << data
          self.set_y_callback(data, name, options)
       end
 
-      def newData( x=[], y=[],name=nil, options={})
+      def new_data( x=[], y=[],name=nil, options={})
          name = self.advance_series(name)
-         self.setXData(x, name, options)
-         self.setYData(y, name, options)
+         self.set_x_data(x, name, options)
+         self.set_y_data(y, name, options)
          self.append_series_name(name,options)
          self.options_callback(options)
       end
 
       #Interface Functions ===================================
-      def appendXY( x=[], y=[],name=nil, options={})
+      def append_xy( x=[], y=[],name=nil, options={})
          name = translate_name(name)
          if !self.new_data_check(name)
             @x[name] << x
@@ -113,69 +110,43 @@ module SimpleOutput
             self.options_callback(options)
             self.append_callback(x,y,name,options)
          else
-            self.newData(x,y,name,options)
+            self.new_data(x,y,name,options)
          end
       end
 
-      def setXY(x=[], y=[], name=nil, options={})
-         self.newData(x,y,name,options)
+      def set_xy(x=[], y=[], name=nil, options={})
+         self.new_data(x,y,name,options)
       end
 
-      def appendPoints(points =[], name=nil, options={})
+      def append_points(points =[], name=nil, options={})
          x = []
          y = []
          points.each do |point|
             x << point[0]
             y << point[1]
          end
-         self.appendXY(x,y,name,options)
+         self.append_xy(x,y,name,options)
       end
 
-      def setPoints(points = [], name=nil, options={})
+      def set_points(points = [], name=nil, options={})
          x = []
          y = []
          points.each do |point|
             x << point[0]
             y << point[1]
          end
-         self.setXY(x,y,name, options)
+         self.set_xy(x,y,name, options)
       end
 
-      def appendHash(hash = {}, name=nil, options={})
+      def append_hash(hash = {}, name=nil, options={})
          name = translate_name(name)
-         x = []
-         y = []
-         hash.each_with_index do |(key, value), index|
-            if key.is_a? Numeric
-               x << key
-            else
-               x << index
-            end
-            if value.is_a? Numeric
-               y << value
-            else
-               y << 0
-            end
-         end
-         self.appendXY(x,y,name,options)
+         x, y = self.hash_to_xy(hash)
+         self.append_xy(x,y,name,options)
       end
 
-      def setHash(hash ={}, name=nil, options={})
-         x = []
-         y = []
-         hash.each_with_index do |(key, value), index|
-            if key.is_a? Numeric
-               x << key
-            else
-               x << index
-            end
-            if value.is_a? Numeric
-               y << value
-            else
-               y << 0
-            end
-         end
-         self.setXY(x,y,name,options)
+      def set_hash(hash ={}, name=nil, options={})
+         x, y = self.hash_to_xy(hash)
+         self.set_xy(x,y,name,options)
       end
 
       def annotate(annotation, name=nil, options = {})
@@ -184,12 +155,12 @@ module SimpleOutput
          self.options_callback(options)
       end
 
-      def setOptions(name=nil, options = {})
+      def set_options(name=nil, options = {})
          self.options_callback(options)
       end
 
       #Internal Helpers
-      def getDataAsPoints
+      def get_data_as_points
          series_data = {}
          @x.each_pair do |(key, x_series)|
             #For each series of data
@@ -209,7 +180,7 @@ module SimpleOutput
          return series_data    
       end
 
-      def getDataAsXY
+      def get_data_as_xy
          series_data = {}
          @x.each_pair do |(key, x_series)|
             y_series = @y[key]
@@ -222,7 +193,7 @@ module SimpleOutput
          return series_data
       end
 
-      def getSeriesHashes
+      def get_series_hashes
          data_hash = {}
         
          @x.each_pair do |(key, x_series)|
@@ -248,6 +219,25 @@ module SimpleOutput
         
       end
 
+      protected
+      def hash_to_xy(hash)
+         x = []
+         y = []
+         hash.each_with_index do |(key, value), index|
+            if key.is_a? Numeric
+               x << key
+            else
+               x << index
+            end
+            if value.is_a? Numeric
+               y << value
+            else
+               y << 0
+            end
+         end
+         return x, y
+      end
+
    end
 
    class SimpleOutputEngine
@@ -257,7 +247,7 @@ module SimpleOutput
          @data_id = 0
       end
 
-      def addPlugin(plugin)
+      def add_plugin(plugin)
          @plugins << plugin
       end
 
@@ -265,50 +255,50 @@ module SimpleOutput
       #Hash [name] = y
       # array [x,y ]
       #Interface Functions
-      def appendXY( x=[], y=[],name=nil, options={})
-         @plugins.each {|plugin| plugin.appendXY(x.clone,y.clone,name, options)}
+      def append_xy( x=[], y=[],name=nil, options={})
+         @plugins.each {|plugin| plugin.append_xy(x.clone,y.clone,name, options)}
       end
 
-      def appendXYarray(data=[], name=nil, options={})
-         @plugins.each {|plugin| plugin.appendXY(data[0].clone,data[1].clone,name, options)}
+      def append_xy_array(data=[], name=nil, options={})
+         @plugins.each {|plugin| plugin.append_xy(data[0].clone,data[1].clone,name, options)}
       end
 
-      def setXYarray(data = [], name=nil, options={})
-         @plugins.each {|plugin| plugin.setXY(data[0].clone,data[1].clone, name, options)}
+      def set_xy_array(data = [], name=nil, options={})
+         @plugins.each {|plugin| plugin.set_xy(data[0].clone,data[1].clone, name, options)}
       end
 
-      def setXY(x=[], y=[], name=nil, options={})
-         @plugins.each {|plugin| plugin.setXY(x.clone,y.clone,name, options)}
+      def set_xy(x=[], y=[], name=nil, options={})
+         @plugins.each {|plugin| plugin.set_xy(x.clone,y.clone,name, options)}
       end
 
-      def appendPoints(points =[], name=nil, options={})
-         @plugins.each {|plugin| plugin.appendPoints(points.clone,name, options)}
+      def append_points(points =[], name=nil, options={})
+         @plugins.each {|plugin| plugin.append_points(points.clone,name, options)}
       end
 
-      def setPoints(points = [], name=nil, options={})
-         @plugins.each {|plugin| plugin.setPoints(points.clone,name, options)}
+      def set_points(points = [], name=nil, options={})
+         @plugins.each {|plugin| plugin.set_points(points.clone,name, options)}
       end
 
-      def appendHash(hash = {}, name=nil, options={})
-         @plugins.each {|plugin| plugin.appendHash(hash.clone,name, options)}
+      def append_hash(hash = {}, name=nil, options={})
+         @plugins.each {|plugin| plugin.append_hash(hash.clone,name, options)}
       end
 
-      def setHash(hash ={}, name=nil, options={})
-         @plugins.each {|plugin| plugin.setHash(hash.clone,name, options)}
+      def set_hash(hash ={}, name=nil, options={})
+         @plugins.each {|plugin| plugin.set_hash(hash.clone,name, options)}
       end
 
-      def setArray(data = [], name=nil, options={})
+      def set_array(data = [], name=nil, options={})
          x = []
          data.count.times {|i| x << i}
          y = data
-         self.setXY(x,y,name,options)
+         self.set_xy(x,y,name,options)
       end
 
-      def appendArray(data = [], name=nil, options={})
+      def append_array(data = [], name=nil, options={})
           x = []
          data.count.times {|i| x << i}
          y = data.clone
-         self.appendXY(x,y,name,options)
+         self.append_xy(x,y,name,options)
       end
 
       def annotate(annotation, name=nil, options={})
@@ -320,6 +310,5 @@ module SimpleOutput
       end
 
    end
-
 
 end

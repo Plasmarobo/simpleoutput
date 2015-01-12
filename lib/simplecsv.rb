@@ -58,7 +58,7 @@ class SimpleCSV < SimpleOutput::SimpleOutputPlugin
   end
 
   def save()
-    data = self.getDataAsXY()
+    data = self.get_data_as_xy()
     data.each do |set_name, series|
       CSV.open("#{@filename}_#{set_name}.csv", "wb") do |csv|
         xlabel = @metadata[set_name]['xlabel']

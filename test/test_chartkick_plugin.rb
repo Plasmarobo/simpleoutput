@@ -15,12 +15,12 @@ hash = {}
   x << index
   y << index
 end
-html.setXY(x, y, "XY")
-html.appendXY( x, y,"XY", {"chart_type" => "ColumnChart"})
-html.setPoints(points, "POINTS", {"chart_type" => "PieChart"})
-html.setHash(hash, "Hash", {"chart_type" => "AreaChart"})
-html.appendPoints(points)
-html.appendHash( {0 => 1, 1 => 3, 3 => 7}, "XY")
+html.set_xy(x, y, "XY")
+html.append_xy( x, y,"XY", {"chart_type" => "ColumnChart"})
+html.set_points(points, "POINTS", {"chart_type" => "PieChart"})
+html.set_hash(hash, "Hash", {"chart_type" => "AreaChart"})
+html.append_points(points)
+html.append_hash( {0 => 1, 1 => 3, 3 => 7}, "XY")
 html.annotate("Should be Hash")
 html.annotate("Should be XY", "XY")
 html.save()
@@ -30,24 +30,24 @@ points = []
 100.times do |index|
 	points << [index, Random.rand]
 end
-html.setPoints(points, "Stats", {'histogram'=>true, 'ymin'=>0, 'ymax' => 1})
+html.set_points(points, "Stats", {'histogram'=>true, 'ymin'=>0, 'ymax' => 1})
 html.save()
 
 data = TestData.new
 #Test output Engine
 output_engine = SimpleOutput::SimpleOutputEngine.new
 html_plugin = SimpleChartkick.new("test_chartkick_Engine.html", "Output Engine", "../../chartkick.js")
-output_engine.addPlugin(html_plugin)
+output_engine.add_plugin(html_plugin)
 
-output_engine.setXYarray(data.xy_data, "XY")
-output_engine.appendXY( data.array_data, data.array_data)
-output_engine.appendXYarray([data.array_data, data.array_data])
+output_engine.set_xy_array(data.xy_data, "XY")
+output_engine.append_xy( data.array_data, data.array_data)
+output_engine.append_xy_array([data.array_data, data.array_data])
 
-output_engine.setXY(data.array_data, data.array_data, "Magic",  {'series' => 'first'})
-output_engine.appendPoints(data.points_data, "Magic", {'series' => 'second'})
-output_engine.setPoints(data.points_data, "NOT MAGIC")
-output_engine.appendHash(data.hash_data, "Magic", {'series' => 'third'})
-output_engine.setHash(data.hash_data, "mydata", {'series' => 'back'})
-output_engine.setArray(data.array_data, "Another")
-output_engine.appendArray(data.array_data, "Lester", {'series' => 'magnetc'})
+output_engine.set_xy(data.array_data, data.array_data, "Magic",  {'series' => 'first'})
+output_engine.append_points(data.points_data, "Magic", {'series' => 'second'})
+output_engine.set_points(data.points_data, "NOT MAGIC")
+output_engine.append_hash(data.hash_data, "Magic", {'series' => 'third'})
+output_engine.set_hash(data.hash_data, "mydata", {'series' => 'back'})
+output_engine.set_array(data.array_data, "Another")
+output_engine.append_array(data.array_data, "Lester", {'series' => 'magnetc'})
 output_engine.save()

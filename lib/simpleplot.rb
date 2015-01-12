@@ -14,6 +14,7 @@ SimplePlot
   See the License for the specific language governing permissions and
   limitations under the License.
 =end
+
 class SimplePlot < SimpleOutput::SimpleOutputPlugin
   require 'gnuplot'
 
@@ -25,39 +26,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
   end
 
   def options_callback(options)
-    if options.has_key?('xsize')
-      @metadata[@current_name]['xsize'] = options['xsize']
-    end
-    if options.has_key?('ysize')
-      @metadata[@current_name]['ysize'] = options['ysize']
-    end
-    if options.has_key?('xlabel')
-      @metadata[@current_name]['xlabel'] = options['xlabel']
-    end
-    if options.has_key?('ylabel')
-      @metadata[@current_name]['ylabel'] = options['ylabel']
-    end
-    if options.has_key?('histogram')
-      @metadata[@current_name]['histogram'] = options['histogram']
-    end
-    if options.has_key?('xmin')
-      @metadata[@current_name]['xmin'] = options['xmin']
-    end
-    if options.has_key?('xmax')
-      @metadata[@current_name]['xmax'] = options['xmax']
-    end
-    if options.has_key?('ymin')
-      @metadata[@current_name]['ymin'] = options['ymin']
-    end
-    if options.has_key?('ymax')
-      @metadata[@current_name]['ymax'] = options['ymax']
-    end
-    if options.has_key?('bincount')
-      @metadata[@current_name]['bincount'] = options['bincount']
-    end
-    if options.has_key?('normalized')
-      @metadata[@current_name]['normalized'] = options['normalized']
-    end
+    @metadata[@current_name].merge! options
   end
 
   def check_title(name, options)
@@ -104,7 +73,7 @@ class SimplePlot < SimpleOutput::SimpleOutputPlugin
   end
 
   def save()
-    data = self.getDataAsXY()
+    data = self.get_data_as_xy()
     data.each do |set_name, series|
       Gnuplot.open do |gp|
         Gnuplot::Plot.new(gp) do |plot|

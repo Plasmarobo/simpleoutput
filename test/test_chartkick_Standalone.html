@@ -1,0 +1,22 @@
+<html>
+<title>
+Data test
+</title>
+<script src='http://www.google.com/jsapi'></script>
+
+                <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
+                <script src='../../chartkick.js/chartkick.js'></script>
+<body>
+<div>Hello world</div>
+<div><h1>XY</h1></div>
+<div id='chart-1' style='height:450px;'></div>
+<p>Should be XY</p>
+<div><h1>POINTS</h1></div>
+<div id='chart-2' style='height:450px;'></div>
+<div><h1>Hash</h1></div>
+<div id='chart-3' style='height:450px;'></div>
+<p>Should be Hash</p>
+<script>$(function (){new Chartkick.ColumnChart('chart-1',[{"name":"data-0","data":{"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9}},{"name":"data-1","data":{"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9}},{"name":"data-5","data":{"0":1,"1":3,"3":7}}], {'format':'string'});
+new Chartkick.PieChart('chart-2',{"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9}, {'format':'string'});
+new Chartkick.AreaChart('chart-3',[{"name":"data-3","data":{"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9}},{"name":"data-4","data":{"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9}}], {'format':'string'});
+});</script></body></html>
