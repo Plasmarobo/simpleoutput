@@ -4,6 +4,8 @@ SimpleOutput
 A simple output/plotting library for Ruby
 Released with Apache 2.0 License
 
+![alt tag](https://raw.github.com/Plasmarobo/simpleoutput/splash.png)
+
 ## SimpleOutput::SimpleOutputEngine
 The output engine provides an aggrigating interface for output plugins.
 With one data set and one interface you can produce a number of different reports, graphs, and data files.
